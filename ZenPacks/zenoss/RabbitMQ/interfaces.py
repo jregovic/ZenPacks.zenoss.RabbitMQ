@@ -39,12 +39,20 @@ class IRabbitMQNodeInfo(IComponentInfo):
     exchangeCount = schema.Int(title=_t(u"Exchange Count"))
     queueCount = schema.Int(title=_t(u"Queue Count"))
 
+class IRabbitMQNodeAPIInfo(IComponentInfo):
+    vhostCount = schema.Int(title=_t(u"VHost Count"))
+    exchangeCount = schema.Int(title=_t(u"Exchange Count"))
+    queueCount = schema.Int(title=_t(u"Queue Count"))
 
 class IRabbitMQVHostInfo(IComponentInfo):
     rabbitmq_node = schema.Entity(title=_t(u"Node"))
     exchangeCount = schema.Int(title=_t(u"Exchange Count"))
     queueCount = schema.Int(title=_t(u"Queue Count"))
 
+class IRabbitMQVHostAPIInfo(IComponentInfo):
+    rabbitmq_node = schema.Entity(title=_t(u"Node"))
+    exchangeCount = schema.Int(title=_t(u"Exchange Count"))
+    queueCount = schema.Int(title=_t(u"Queue Count"))
 
 class IRabbitMQExchangeInfo(IComponentInfo):
     rabbitmq_node = schema.Entity(title=_t(u"Node"))
@@ -54,6 +62,13 @@ class IRabbitMQExchangeInfo(IComponentInfo):
     auto_delete = schema.Bool(title=_t("Auto-Delete"))
     arguments = SingleLineText(title=_t(u"Arguments"))
 
+class IRabbitMQExchangeAPIInfo(IComponentInfo):
+    rabbitmq_node = schema.Entity(title=_t(u"Node"))
+    rabbitmq_vhost = schema.Entity(title=_t(u"VHost"))
+    exchange_type = SingleLineText(title=_t(u"Type"))
+    durable = schema.Bool(title=_t("Durable"))
+    auto_delete = schema.Bool(title=_t("Auto-Delete"))
+    arguments = SingleLineText(title=_t(u"Arguments"))
 
 class IRabbitMQQueueInfo(IComponentInfo):
     rabbitmq_node = schema.Entity(title=_t(u"Node"))

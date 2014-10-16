@@ -1,11 +1,12 @@
 (function(){
-
 var ZC = Ext.ns('Zenoss.component');
 
 ZC.registerName('RabbitMQNode', _t('RabbitMQ Node'), _t('RabbitMQ Nodes'));
 ZC.registerName('RabbitMQVHost', _t('RabbitMQ VHost'), _t('RabbitMQ VHosts'));
 ZC.registerName('RabbitMQExchange', _t('RabbitMQ Exchange'), _t('RabbitMQ Exchanges'));
 ZC.registerName('RabbitMQQueue', _t('RabbitMQ Queue'), _t('RabbitMQ Queues'));
+ZC.registerName('RabbitMQAPIQueue', _t('RabbitMQ Queue'), _t('RabbitMQ Queues'));
+ZC.registerName('RabbitMQNodeAPI', _t('RabbitMQ Node'), _t('RabbitMQ Nodes'));
 
 Ext.apply(Zenoss.render, {
     RabbitMQ_entityLinkFromGrid: function(obj, col, record) {
@@ -415,6 +416,322 @@ ZC.RabbitMQQueuePanel = Ext.extend(ZC.RabbitMQComponentGridPanel, {
 
 Ext.reg('RabbitMQQueuePanel', ZC.RabbitMQQueuePanel);
 
+ZC.RabbitMQNodeAPIPanel = Ext.extend(ZC.RabbitMQComponentGridPanel, {
+    constructor: function(config) {
+        config = Ext.applyIf(config||{}, {
+            autoExpandColumn: 'name',
+            componentType: 'RabbitMQNodeAPI',
+            sortInfo: {
+                field: 'queueCount',
+                direction: 'DESC'
+            },
+            fields: [
+                {name: 'uid'},
+                {name: 'name'},
+                {name: 'meta_type'},
+                {name: 'severity'},
+                {name: 'vhostCount'},
+                {name: 'exchangeCount'},
+                {name: 'queueCount'},
+                {name: 'monitor'},
+                {name: 'monitored'},
+                {name: 'locking'}
+            ],
+            columns: [{
+                id: 'severity',
+                dataIndex: 'severity',
+                header: _t('Events'),
+                renderer: Zenoss.render.severity,
+                sortable: true,
+                width: 50
+            },{
+                id: 'name',
+                dataIndex: 'name',
+                header: _t('Name'),
+                renderer: Zenoss.render.RabbitMQ_entityLinkFromGrid,
+                panel: this
+            },{
+                id: 'vhostCount',
+                dataIndex: 'vhostCount',
+                header: _t('# VHosts'),
+                sortable: true,
+                width: 80
+            },{
+                id: 'exchangeCount',
+                dataIndex: 'exchangeCount',
+                header: _t('# Exchanges'),
+                sortable: true,
+                width: 80
+            },{
+                id: 'queueCount',
+                dataIndex: 'queueCount',
+                header: _t('# Queues'),
+                sortable: true,
+                width: 80
+            },{
+                id: 'monitored',
+                dataIndex: 'monitored',
+                header: _t('Monitored'),
+                renderer: Zenoss.render.checkbox,
+                sortable: true,
+                width: 65
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
+                width: 65
+            }]
+        });
+        ZC.RabbitMQNodeAPIPanel.superclass.constructor.call(this, config);
+    }
+});
+
+Ext.reg('RabbitMQNodeAPIPanel', ZC.RabbitMQNodeAPIPanel);
+
+ZC.RabbitMQVHostAPIPanel = Ext.extend(ZC.RabbitMQComponentGridPanel, {
+    constructor: function(config) {
+        config = Ext.applyIf(config||{}, {
+            autoExpandColumn: 'name',
+            componentType: 'RabbitMQVHostAPI',
+            sortInfo: {
+                field: 'queueCount',
+                direction: 'DESC'
+            },
+            fields: [
+                {name: 'uid'},
+                {name: 'name'},
+                {name: 'meta_type'},
+                {name: 'severity'},
+                {name: 'rabbitmq_node'},
+                {name: 'exchangeCount'},
+                {name: 'queueCount'},
+                {name: 'monitor'},
+                {name: 'monitored'},
+                {name: 'locking'}
+            ],
+            columns: [{
+                id: 'severity',
+                dataIndex: 'severity',
+                header: _t('Events'),
+                renderer: Zenoss.render.severity,
+                sortable: true,
+                width: 50
+            },{
+                id: 'name',
+                dataIndex: 'name',
+                header: _t('Name'),
+                renderer: Zenoss.render.RabbitMQ_entityLinkFromGrid,
+                panel: this
+            },{
+                id: 'rabbitmq_node',
+                dataIndex: 'rabbitmq_node',
+                header: _t('Node'),
+                renderer: Zenoss.render.RabbitMQ_entityLinkFromGrid,
+                width: 140
+            },{
+                id: 'exchangeCount',
+                dataIndex: 'exchangeCount',
+                header: _t('# Exchanges'),
+                sortable: true,
+                width: 80
+            },{
+                id: 'queueCount',
+                dataIndex: 'queueCount',
+                header: _t('# Queues'),
+                sortable: true,
+                width: 80
+            },{
+                id: 'monitored',
+                dataIndex: 'monitored',
+                header: _t('Monitored'),
+                renderer: Zenoss.render.checkbox,
+                sortable: true,
+                width: 65
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
+                width: 65
+            }]
+        });
+        ZC.RabbitMQVHostAPIPanel.superclass.constructor.call(this, config);
+    }
+});
+
+Ext.reg('RabbitMQVHostAPIPanel', ZC.RabbitMQVHostAPIPanel);
+
+ZC.RabbitMQExchangeAPIPanel = Ext.extend(ZC.RabbitMQComponentGridPanel, {
+    constructor: function(config) {
+        config = Ext.applyIf(config||{}, {
+            autoExpandColumn: 'name',
+            componentType: 'RabbitMQExchangeAPI',
+            fields: [
+                {name: 'uid'},
+                {name: 'name'},
+                {name: 'meta_type'},
+                {name: 'severity'},
+                {name: 'rabbitmq_node'},
+                {name: 'rabbitmq_vhost'},
+                {name: 'exchange_type'},
+                {name: 'durable'},
+                {name: 'auto_delete'},
+                {name: 'monitor'},
+                {name: 'monitored'},
+                {name: 'locking'}
+            ],
+            columns: [{
+                id: 'severity',
+                dataIndex: 'severity',
+                header: _t('Events'),
+                renderer: Zenoss.render.severity,
+                sortable: true,
+                width: 50
+            },{
+                id: 'name',
+                dataIndex: 'name',
+                header: _t('Name'),
+                renderer: Zenoss.render.RabbitMQ_entityLinkFromGrid,
+                panel: this
+            },{
+                id: 'rabbitmq_node',
+                dataIndex: 'rabbitmq_node',
+                header: _t('Node'),
+                renderer: Zenoss.render.RabbitMQ_entityLinkFromGrid,
+                width: 140
+            },{
+                id: 'rabbitmq_vhost',
+                dataIndex: 'rabbitmq_vhost',
+                header: _t('VHost'),
+                renderer: Zenoss.render.RabbitMQ_entityLinkFromGrid,
+                width: 100
+            },{
+                id: 'exchange_type',
+                dataIndex: 'exchange_type',
+                header: _t('Type'),
+                sortable: true,
+                width: 65
+            },{
+                id: 'durable',
+                dataIndex: 'durable',
+                header: _t('Durable'),
+                renderer: Zenoss.render.checkbox,
+                sortable: true,
+                width: 55
+            },{
+                id: 'auto_delete',
+                dataIndex: 'auto_delete',
+                header: _t('Auto-Delete'),
+                renderer: Zenoss.render.checkbox,
+                sortable: true,
+                width: 70
+            },{
+                id: 'monitored',
+                dataIndex: 'monitored',
+                header: _t('Monitored'),
+                renderer: Zenoss.render.checkbox,
+                sortable: true,
+                width: 65
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
+                width: 65
+            }]
+        });
+        ZC.RabbitMQExchangeAPIPanel.superclass.constructor.call(this, config);
+    }
+});
+
+Ext.reg('RabbitMQExchangeAPIPanel', ZC.RabbitMQExchangeAPIPanel);
+
+ZC.RabbitMQQueueAPIPanel = Ext.extend(ZC.RabbitMQComponentGridPanel, {
+
+    constructor: function(config) {
+        config = Ext.applyIf(config||{}, {
+            autoExpandColumn: 'name',
+            componentType: 'RabbitMQQueueAPI',
+            fields: [
+                {name: 'uid'},
+                {name: 'name'},
+                {name: 'meta_type'},
+                {name: 'severity'},
+                {name: 'rabbitmq_node'},
+                {name: 'rabbitmq_vhost'},
+                {name: 'durable'},
+                {name: 'auto_delete'},
+                {name: 'threshold_messages_max'},
+                {name: 'monitor'},
+                {name: 'monitored'},
+                {name: 'locking'}
+            ],
+            columns: [{
+                id: 'severity',
+                dataIndex: 'severity',
+                header: _t('Events'),
+                renderer: Zenoss.render.severity,
+                sortable: true,
+                width: 50
+            },{
+                id: 'name',
+                dataIndex: 'name',
+                header: _t('Name'),
+                renderer: Zenoss.render.RabbitMQ_entityLinkFromGrid,
+                panel: this
+            },{
+                id: 'rabbitmq_node',
+                dataIndex: 'rabbitmq_node',
+                header: _t('Node'),
+                renderer: Zenoss.render.RabbitMQ_entityLinkFromGrid,
+                width: 140
+            },{
+                id: 'rabbitmq_vhost',
+                dataIndex: 'rabbitmq_vhost',
+                header: _t('VHost'),
+                renderer: Zenoss.render.RabbitMQ_entityLinkFromGrid,
+                width: 80
+            },{
+                id: 'durable',
+                dataIndex: 'durable',
+                header: _t('Durable'),
+                renderer: Zenoss.render.checkbox,
+                sortable: true,
+                width: 55
+            },{
+                id: 'auto_delete',
+                dataIndex: 'auto_delete',
+                header: _t('Auto-Delete'),
+                renderer: Zenoss.render.checkbox,
+                sortable: true,
+                width: 70
+            },{
+                id: 'threshold_messages_max',
+                dataIndex: 'threshold_messages_max',
+                header: _t('Threshold'),
+                sortable: true,
+                width: 70
+            },{
+                id: 'monitored',
+                dataIndex: 'monitored',
+                header: _t('Monitored'),
+                renderer: Zenoss.render.checkbox,
+                sortable: true,
+                width: 65
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
+                width: 65
+            }]
+        });
+        ZC.RabbitMQQueueAPIPanel.superclass.constructor.call(this, config);
+    }
+});
+Ext.reg('RabbitMQQueueAPIPanel', ZC.RabbitMQAPIQueueAPIPanel);
+
 Zenoss.nav.appendTo('Component', [{
     id: 'component_rabbitmq_vhosts',
     text: _t('Related VHosts'),
@@ -449,6 +766,7 @@ Zenoss.nav.appendTo('Component', [{
     }
 }]);
 
+
 Zenoss.nav.appendTo('Component', [{
     id: 'component_rabbitmq_queues',
     text: _t('Related Queues'),
@@ -463,6 +781,57 @@ Zenoss.nav.appendTo('Component', [{
     },
     setContext: function(uid) {
         ZC.RabbitMQQueuePanel.superclass.setContext.apply(this, [uid]);
+    }
+}]);
+
+Zenoss.nav.appendTo('Component', [{
+    id: 'component_rabbitmq_apivhosts',
+    text: _t('Related VHosts'),
+    xtype: 'RabbitMQVHostAPIPanel',
+    subComponentGridPanel: true,
+    filterNav: function(navpanel) {
+        if (navpanel.refOwner.componentType == 'RabbitMQNodeAPI') {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    setContext: function(uid) {
+        ZC.RabbitMQVHostAPIPanel.superclass.setContext.apply(this, [uid]);
+    }
+}]);
+
+Zenoss.nav.appendTo('Component', [{
+    id: 'component_rabbitmq_exchanges',
+    text: _t('Related Exchanges'),
+    xtype: 'RabbitMQExchangeAPIPanel',
+    subComponentGridPanel: true,
+    filterNav: function(navpanel) {
+        switch (navpanel.refOwner.componentType) {
+            case 'RabbitMQNodeAPI': return true;
+            case 'RabbitMQVHostAPI': return true;
+            default: return false;
+        }
+    },
+    setContext: function(uid) {
+        ZC.RabbitMQExchangeAPIPanel.superclass.setContext.apply(this, [uid]);
+    }
+}]);
+
+Zenoss.nav.appendTo('Component', [{
+    id: 'component_rabbitmq_apiqueues',
+    text: _t('Related  HTTP Queues'),
+    xtype: 'RabbitMQQueuePanelAPI',
+    subComponentGridPanel: true,
+    filterNav: function(navpanel) {
+        switch (navpanel.refOwner.componentType) {
+            case 'RabbitMQNodeAPI': return true;
+            case 'RabbitMQVHostAPI': return true;
+            default: return false;
+        }
+    },
+    setContext: function(uid) {
+        ZC.RabbitMQQueueAPIPanel.superclass.setContext.apply(this, [uid]);
     }
 }]);
 

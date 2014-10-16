@@ -19,7 +19,8 @@ from Products.Zuul.infos.component import ComponentInfo
 
 from .interfaces import (
     IRabbitMQNodeInfo, IRabbitMQVHostInfo, IRabbitMQExchangeInfo,
-    IRabbitMQQueueInfo,IRabbitMQQueueAPIInfo
+    IRabbitMQQueueInfo,IRabbitMQNodeAPIInfo,IRabbitMQVHostAPIInfo,
+    IRabbitMQExchangeAPIInfo,IRabbitMQQueueAPIInfo
     )
 
 
@@ -46,6 +47,28 @@ class RabbitMQNodeInfo(ComponentInfo):
 
         return count
 
+class RabbitMQNodeAPIInfo(ComponentInfo):
+    implements(IRabbitMQNodeAPIInfo)
+
+    @property
+    def vhostCount(self):
+        return self._object.rabbitmq_apvhosts.countObjects()
+
+    @property
+    def exchangeCount(self):
+        count = 0
+        for vhost in self._object.rabbitmq_apivhosts():
+            count += vhost.rabbitmq_apiexchanges.countObjects()
+
+        return count
+
+    @property
+    def queueCount(self):
+        count = 0
+        for vhost in self._object.rabbitmq_apivhosts():
+            count += vhost.rabbitmq_apiqueues.countObjects()
+
+        return count
 
 class RabbitMQVHostInfo(ComponentInfo):
     implements(IRabbitMQVHostInfo)
@@ -62,6 +85,22 @@ class RabbitMQVHostInfo(ComponentInfo):
     @property
     def queueCount(self):
         return self._object.rabbitmq_queues.countObjects()
+
+class RabbitMQVHostAPIInfo(ComponentInfo):
+    implements(IRabbitMQVHostAPIInfo)
+
+    @property
+    @info
+    def rabbitmq_node(self):
+        return self._object.rabbitmq_apinode()
+
+    @property
+    def exchangeCount(self):
+        return self._object.rabbitmq_apiexchanges.countObjects()
+
+    @property
+    def queueCount(self):
+        return self._object.rabbitmq_apiqueues.countObjects()
 
 
 class RabbitMQExchangeInfo(ComponentInfo):
@@ -81,6 +120,24 @@ class RabbitMQExchangeInfo(ComponentInfo):
     @info
     def rabbitmq_vhost(self):
         return self._object.rabbitmq_vhost()
+
+class RabbitMQExchangeAPIInfo(ComponentInfo):
+    implements(IRabbitMQExchangeAPIInfo)
+
+    exchange_type = ProxyProperty('exchange_type')
+    durable = ProxyProperty('durable')
+    auto_delete = ProxyProperty('auto_delete')
+    arguments = ProxyProperty('arguments')
+
+    @property
+    @info
+    def rabbitmq_node(self):
+        return self._object.rabbitmq_apivhost().rabbitmq_apinode()
+
+    @property
+    @info
+    def rabbitmq_vhost(self):
+        return self._object.rabbitmq_apivhost()
 
 
 class RabbitMQQueueInfo(ComponentInfo):
@@ -134,12 +191,12 @@ class RabbitMQQueueAPIInfo(ComponentInfo):
     @property
     @info
     def rabbitmq_node(self):
-        return self._object.rabbitmq_vhost().rabbitmq_node()
+        return self._object.rabbitmq_apivhost().rabbitmq_apinode()
 
     @property
     @info
     def rabbitmq_vhost(self):
-        return self._object.rabbitmq_vhost()
+        return self._object.rabbitmq_apivhost()
     @property
     def status(self):
 	if self.state != 'running' and self.api:

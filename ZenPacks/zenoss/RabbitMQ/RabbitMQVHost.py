@@ -36,10 +36,10 @@ class RabbitMQVHost(RabbitMQComponent):
             'ZenPacks.zenoss.RabbitMQ.RabbitMQQueue.RabbitMQQueue',
             'rabbitmq_vhost',
             ),),
-        ('rabbitmq_apiqueues', ToManyCont(ToOne,
+        ('rabbitmq_apiqueues',ToManyCont(ToOne,
             'ZenPacks.zenoss.RabbitMQ.RabbitMQAPIQueue.RabbitMQAPIQueue',
             'rabbitmq_vhost',
-            ),),
+	    ),),
         )
 
     def device(self):

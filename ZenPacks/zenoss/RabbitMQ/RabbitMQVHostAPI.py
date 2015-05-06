@@ -16,20 +16,23 @@ from Products.ZenRelations.RelSchema import ToManyCont, ToOne
 from .RabbitMQComponent import RabbitMQComponent
 
 
-class RabbitMQNodeAPI(RabbitMQComponent):
-    meta_type = "RabbitMQNodeAPI"
-    portal_type = "RabbitMQNodeAPI"
+class RabbitMQVHostAPI(RabbitMQComponent):
+    meta_type = portal_type = "RabbitMQVHostAPI"
 
     _relations = RabbitMQComponent._relations + (
-        ('rabbitmq_host', ToOne(ToManyCont,
-            'Products.ZenModel.Device.Device',
-            'rabbitmq_apinodes',
+        ('rabbitmq_apinode', ToOne(ToManyCont,
+            'ZenPacks.zenoss.RabbitMQ.RabbitMQNodeAPI.RabbitMQNodeAPI',
+            'rabbitmq_apivhosts',
             ),),
-        ('rabbitmq_apivhosts', ToManyCont(ToOne,
-            'ZenPacks.zenoss.RabbitMQ.RabbitMQVHost.RabbitMQVHostAPI',
-            'rabbitmq_apinode',
+        ('rabbitmq_apiexchanges', ToManyCont(ToOne,
+            'ZenPacks.zenoss.RabbitMQ.RabbitMQExchange.RabbitMQExchangeAPI',
+            'rabbitmq_vhost',
             ),),
+        ('rabbitmq_apiqueues',ToManyCont(ToOne,
+            'ZenPacks.zenoss.RabbitMQ.RabbitMQAPIQueue.RabbitMQQueueAPI',
+            'rabbitmq_apivhost',
+	    ),),
         )
 
     def device(self):
-        return self.rabbitmq_host()
+        return self.rabbitmq_node().device()

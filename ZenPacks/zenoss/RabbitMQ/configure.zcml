@@ -8,17 +8,10 @@
         factory=".info.RabbitMQNodeInfo"
         />
     <adapter
-        provides=".interfaces.IRabbitMQNodeInfo"
-        for=".RabbitMQNodeAPI.RabbitMQNodeAPI"
-        factory=".info.RabbitMQNodeInfo"
-        />
-
-    <adapter
         provides=".interfaces.IRabbitMQVHostInfo"
         for=".RabbitMQVHost.RabbitMQVHost"
         factory=".info.RabbitMQVHostInfo"
         />
-
     <adapter
         provides=".interfaces.IRabbitMQExchangeInfo"
         for=".RabbitMQExchange.RabbitMQExchange"
@@ -32,8 +25,25 @@
         />
 
     <adapter
+        provides=".interfaces.IRabbitMQNodeAPIInfo"
+        for=".RabbitMQNodeAPI.RabbitMQNodeAPI"
+        factory=".info.RabbitMQNodeAPIInfo"
+        />
+
+    <adapter
+        provides=".interfaces.IRabbitMQVHostAPIInfo"
+        for=".RabbitMQVHostAPI.RabbitMQVHostAPI"
+        factory=".info.RabbitMQVHostAPIInfo"
+        />
+
+    <adapter
+        provides=".interfaces.IRabbitMQExchangeAPIInfo"
+        for=".RabbitMQExchangeAPI.RabbitMQExchangeAPI"
+        factory=".info.RabbitMQExchangeAPIInfo"
+        />
+    <adapter
         provides=".interfaces.IRabbitMQQueueAPIInfo"
-        for=".RabbitMQAPIQueue.RabbitMQAPIQueue"
+        for=".RabbitMQQueueAPI.RabbitMQQueueAPI"
         factory=".info.RabbitMQQueueAPIInfo"
         />
 

@@ -110,8 +110,8 @@ class RabbitMQ(PythonPlugin):
 		return None
         return [RelationshipMap(
             compname=compname,
-            relname='rabbitmq_vhosts',
-            modname='ZenPacks.zenoss.RabbitMQ.RabbitMQVHost',
+            relname='rabbitmq_apivhosts',
+            modname='ZenPacks.zenoss.RabbitMQ.RabbitMQVHostAPI',
             objmaps=object_maps)] + rel_maps
 
     def getExchangeRelMap(self, device, compname,vhost,node):
@@ -138,8 +138,8 @@ class RabbitMQ(PythonPlugin):
 
         return RelationshipMap(
             compname=compname,
-            relname='rabbitmq_exchanges',
-            modname='ZenPacks.zenoss.RabbitMQ.RabbitMQExchange',
+            relname='rabbitmq_apiexchanges',
+            modname='ZenPacks.zenoss.RabbitMQ.RabbitMQExchangeAPI',
             objmaps=object_maps)
 
     def getQueueRelMap(self, device, compname,vhost,node):
@@ -169,5 +169,5 @@ class RabbitMQ(PythonPlugin):
         return RelationshipMap(
             compname=compname,
             relname='rabbitmq_apiqueues',
-            modname='ZenPacks.zenoss.RabbitMQ.RabbitMQAPIQueue',
+            modname='ZenPacks.zenoss.RabbitMQ.RabbitMQQueueAPI',
             objmaps=object_maps)

@@ -52,6 +52,7 @@ class RabbitMQDS(PythonDataSourcePlugin):
 			datasource.plugin_classname,
 			)
 		"""
+		#import pdb;pdb.set_trace()
 		return (
 			context.device().id,
 			datasource.getCycleTime(context),
@@ -111,7 +112,6 @@ class RabbitMQDS(PythonDataSourcePlugin):
 	be sent to the onResult then either onSuccess or onError callbacks
 	below.
 	"""
-	#import pdb;pdb.set_trace()
 	device = config.datasources[0]
 	deferreds=[]
 	self.page='http://%s:%s/api/' %(device.device,str(device.zRabbitMQAPIPort))
@@ -149,6 +149,7 @@ class RabbitMQDS(PythonDataSourcePlugin):
 			self.error=True
 			return None
     def onSuccess(self, results, config):
+
         maps = []
 
         node_title = None
@@ -156,9 +157,6 @@ class RabbitMQDS(PythonDataSourcePlugin):
         nodes = []
 	maps1 = []
 	values={}
-	for ds in config.datasources:
-		LOG.debug("Datasource %s component %s" % (ds.datasource,ds.component))
-	
 	device = config.datasources[0]
 	comps= config.datasources[0].params
 	if self.error:
@@ -178,21 +176,22 @@ class RabbitMQDS(PythonDataSourcePlugin):
 			if self.data.has_key('connections'):
 				nodeData.update(self.getConnectionData(node['name'],self.data['connections']))
 			if len(nodeData) > 0:	
-				values[node_title] = {}
+				values[node_id] = {}
 				for value in nodeData:
 					dpName=config.datasources[0].datasource+'_'+value
-					values[node_title][dpName] = (nodeData[value],collectionTime)
+					values[node_id][dpName] = (nodeData[value],collectionTime)
         		# vhosts
 			#if LOG.getEffectiveLevel() >= 10:
 			#	import pdb;pdb.set_trace()
 			vhosts=self.getVHostRelMap(
-            			device,'rabbitmq_apinodes/%s' % node_id,node_title,comps,values)
+            			device,'rabbitmq_apinodes/%s' % node_id,node_title,comps)
 			if vhosts:
 				nodes.append(ObjectMap(data={
 				'id': node_id,
 				'title': node_title,
 				}))
         			maps.extend(vhosts)
+	values=self.getValues()
 	if len(maps) > 0:
 		maps.append(RelationshipMap(
             			relname='rabbitmq_apinodes',
@@ -208,10 +207,20 @@ class RabbitMQDS(PythonDataSourcePlugin):
 	if not self.error:
 		self.events.append(clearEvent)
 	myresult = {'events':self.events,'maps':self.maps,'values':values}
-	#import pdb;pdb.set_trace()
 	
 	return myresult
-
+    
+    def getValues():
+	if self.data.has_key('channels'):
+		nodeData=self.getChannelData(node['name'],self.data['channels'])
+	if self.data.has_key('connections'):
+		nodeData.update(self.getConnectionData(node['name'],self.data['connections']))
+	if len(nodeData) > 0:	
+		values[node_id] = {}
+		for value in nodeData:
+			dpName=config.datasources[0].datasource+'_'+value
+			values[node_id][dpName] = (nodeData[value],collectionTime)
+	
     def getConnectionData(self,node,connections):
 	connectionData = {}
 	connectionData['recvBytes'] = 0	
@@ -220,17 +229,18 @@ class RabbitMQDS(PythonDataSourcePlugin):
 	connectionData['sendCount'] = 0
 	connectionData['sendQueue'] = 0
 	connectionData['connections'] = 0
+	nodeData={}
 	if len(connections) < 1:
 		return connectionData
 
 	for connection in connections:
-		if connection.get('node') == node:
-			connectionData['recvBytes'] = connectionData['recvBytes']  + connection.get('recv_oct',0)
-			connectionData['recvCount'] = connectionData['recvCount'] + connection.get('recv_cnt',0)
-			connectionData['sendBytes'] = connectionData['sendBytes']  + connection.get('send_oct',0)
-			connectionData['sendCount'] = connectionData['sendCount'] + connection.get('send_cnt',0)
-			connectionData['sendQueue'] = connectionData['sendQueue'] + connection.get('send_pend',0)
-			connectionData['connections'] = connectionData['connections'] + 1
+		nodeId = prepId(connection.get('node'))
+		nodeDatai[nodeId]['recvBytes'] = nodeData.get('recvBytes',0)  + connection.get('recv_oct',0)
+		nodeData[nodeId]['recvCount'] = nodeData[nodeId]['recvCount'] + connection.get('recv_cnt',0)
+		nodeData[nodeId]['sendBytes'] = nodeData[nodeId]['sendBytes']  + connection.get('send_oct',0)
+		nodeData[nodeId]['sendCount'] = nodeData[nodeId]['sendCount'] + connection.get('send_cnt',0)
+		nodeData[nodeId]['sendQueue'] = nodeData[nodeId]['sendQueue'] + connection.get('send_pend',0)
+		nodeData[nodeId]['connections'] = nodeData[nodeId]['connections'] + 1
 	return connectionData
 
     def getChannelData(self,node,channels):
@@ -250,7 +260,7 @@ class RabbitMQDS(PythonDataSourcePlugin):
 			channelData['channels'] = channelData['channels'] + 1
 	return channelData
 
-    def getVHostRelMap(self, device,  compname,node,comps,values):
+    def getVHostRelMap(self, device,  compname,node,comps):
         rel_maps = []
         object_maps = []
 	noq = False
@@ -264,7 +274,7 @@ class RabbitMQDS(PythonDataSourcePlugin):
                     }))
 
         	exchanges=self.getExchangeRelMap(device,'%s/rabbitmq_vhosts/%s' % (compname, vhost_id),vhost_title,node)
-        	queues=self.getQueueRelMap(device,'%s/rabbitmq_vhosts/%s' % (compname, vhost_id),vhost_title,node,values)
+        	queues=self.getQueueRelMap(device,'%s/rabbitmq_vhosts/%s' % (compname, vhost_id),vhost_title,node)
 		
 		if len(queues.maps) == 0:
 			noq = True
@@ -316,7 +326,7 @@ class RabbitMQDS(PythonDataSourcePlugin):
             modname='ZenPacks.zenoss.RabbitMQ.RabbitMQExchange',
             objmaps=object_maps)
 
-    def getQueueRelMap(self, device, compname,vhost,node,values):
+    def getQueueRelMap(self, device, compname,vhost,node):
         object_maps = []
         for queue in self.data['queues']:
 		if queue['vhost'] == vhost and queue['node'] == node:
@@ -324,17 +334,6 @@ class RabbitMQDS(PythonDataSourcePlugin):
 			durable = queue['durable']
 			auto_delete = queue['auto_delete']
 			arguments = queue['arguments']
-			valId = vhost+'/'+name
-			#valId = prepId(name)
-			values[valId] = {}	
-			values[valId]['incoming_rate'] = queue.get('message_stats',{}).get('publish_details',{}).get('rate',0)
-			values[valId]['outgoing_rate'] = queue.get('message_stats',{}).get('deliver_get_details',{}).get('rate',0)
-			values[valId]['consumers'] = queue.get('consumers',0)
-			values[valId]['memory'] = queue.get('memory',0)
-			values[valId]['messages'] = queue.get('messages',0)
-			values[valId]['ready'] = queue.get('messages_ready',0)
-			values[valId]['unacknowledged'] = queue.get('messages_unacknowledged',0)
-
 			try:
 				state = queue['state']
 			except: 

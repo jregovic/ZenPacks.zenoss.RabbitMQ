@@ -17,7 +17,7 @@ from .RabbitMQComponent import RabbitMQComponent
 
 class RabbitMQQueueAPI(RabbitMQComponent):
     meta_type =  "RabbitMQQueueAPI"
-    portal_type = "RabbitMQAPIQueueAPI"
+    portal_type = "RabbitMQAPIQueue"
 
     # Modeled attributes.
     durable = None
@@ -39,19 +39,19 @@ class RabbitMQQueueAPI(RabbitMQComponent):
 
     _relations = RabbitMQComponent._relations + (
         ('rabbitmq_apivhost', ToOne(ToManyCont,
-            'ZenPacks.zenoss.RabbitMQ.RabbitMQVHost.RabbitMQVHostAPI',
+            'ZenPacks.zenoss.RabbitMQ.RabbitMQVHostAPI.RabbitMQVHostAPI',
             'rabbitmq_apiqueues',
             ),),
         )
 
     def device(self):
-        return self.rabbitmq_vhost().device()
+        return self.rabbitmq_apivhost().device()
 
     @property
     def rabbitmq_node_name(self):
-        return self.rabbitmq_vhost().rabbitmq_node().title
+        return self.rabbitmq_apivhost().rabbitmq_apinode().title
 
     @property
     def rabbitmq_vhost_name(self):
-        return self.rabbitmq_vhost().title
+        return self.rabbitmq_apivhost().title
 

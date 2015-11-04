@@ -17,7 +17,8 @@ from .RabbitMQComponent import RabbitMQComponent
 
 
 class RabbitMQVHostAPI(RabbitMQComponent):
-    meta_type = portal_type = "RabbitMQVHostAPI"
+    meta_type = "RabbitMQVHostAPI"
+    portal_type = "RabbitMQVHost"
 
     _relations = RabbitMQComponent._relations + (
         ('rabbitmq_apinode', ToOne(ToManyCont,
@@ -25,14 +26,14 @@ class RabbitMQVHostAPI(RabbitMQComponent):
             'rabbitmq_apivhosts',
             ),),
         ('rabbitmq_apiexchanges', ToManyCont(ToOne,
-            'ZenPacks.zenoss.RabbitMQ.RabbitMQExchange.RabbitMQExchangeAPI',
-            'rabbitmq_vhost',
+            'ZenPacks.zenoss.RabbitMQ.RabbitMQExchangeAPI.RabbitMQExchangeAPI',
+            'rabbitmq_apivhost',
             ),),
         ('rabbitmq_apiqueues',ToManyCont(ToOne,
-            'ZenPacks.zenoss.RabbitMQ.RabbitMQAPIQueue.RabbitMQQueueAPI',
+            'ZenPacks.zenoss.RabbitMQ.RabbitMQAPIQueueAPI.RabbitMQQueueAPI',
             'rabbitmq_apivhost',
 	    ),),
         )
 
     def device(self):
-        return self.rabbitmq_node().device()
+        return self.rabbitmq_apinode().device()

@@ -62,7 +62,15 @@ class RabbitMQ(PythonPlugin):
 		if node['running']:
 			node_title = node['name']
 			node_id = prepId(node_title)
+			nodes.append(ObjectMap(data={
+				'id': node_id,
+				'title': node_title,
+			}))
 
+			maps.append(RelationshipMap(
+            			relname='rabbitmq_apinodes',
+            			modname='ZenPacks.zenoss.RabbitMQ.RabbitMQNodeAPI',
+            			objmaps=nodes))
             		LOG.info('Found node %s on %s', node_title, device.id)
 
 
@@ -70,19 +78,8 @@ class RabbitMQ(PythonPlugin):
 			vhosts=self.getVHostRelMap(
             			device,'rabbitmq_apinodes/%s' % node_id,node_title)
 			if vhosts:
-				nodes.append(ObjectMap(data={
-				'id': node_id,
-				'title': node_title,
-				}))
         			maps.extend(vhosts)
-	if len(maps) > 0:
-		maps.append(RelationshipMap(
-            			relname='rabbitmq_apinodes',
-            			modname='ZenPacks.zenoss.RabbitMQ.RabbitMQNodeAPI',
-            			objmaps=nodes))
-       		return maps
-	else:
-		return None
+	return maps
 
     def getVHostRelMap(self, device,  compname,node):
         rel_maps = []
@@ -97,18 +94,15 @@ class RabbitMQ(PythonPlugin):
                     'title': vhost_title,
                     }))
 
-        	exchanges=self.getExchangeRelMap(device,'%s/rabbitmq_vhosts/%s' % (compname, vhost_id),vhost_title,node)
-        	queues=self.getQueueRelMap(device,'%s/rabbitmq_vhosts/%s' % (compname, vhost_id),vhost_title,node)
+        	exchanges=self.getExchangeRelMap(device,'%s/rabbitmq_apivhosts/%s' % (compname, vhost_id),vhost_title,node)
+        	queues=self.getQueueRelMap(device,'%s/rabbitmq_apivhosts/%s' % (compname, vhost_id),vhost_title,node)
 		
-		if len(queues.maps) == 0:
-			noq = True
-		else:
-			noq = False	
-            	   	rel_maps.append(exchanges)
+		if len(queues.maps) >= 0:
         	       	rel_maps.append(queues)
-	if noq:
-		return None
-        return [RelationshipMap(
+		if len(exchanges.maps) >= 0:
+            	   	rel_maps.append(exchanges)
+        
+	return [RelationshipMap(
             compname=compname,
             relname='rabbitmq_apivhosts',
             modname='ZenPacks.zenoss.RabbitMQ.RabbitMQVHostAPI',

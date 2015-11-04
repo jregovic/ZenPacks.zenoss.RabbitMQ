@@ -18,7 +18,7 @@ from .RabbitMQComponent import RabbitMQComponent
 
 class RabbitMQNodeAPI(RabbitMQComponent):
     meta_type = "RabbitMQNodeAPI"
-    portal_type = "RabbitMQNodeAPI"
+    portal_type = "RabbitMQNode"
 
     _relations = RabbitMQComponent._relations + (
         ('rabbitmq_host', ToOne(ToManyCont,
@@ -26,7 +26,7 @@ class RabbitMQNodeAPI(RabbitMQComponent):
             'rabbitmq_apinodes',
             ),),
         ('rabbitmq_apivhosts', ToManyCont(ToOne,
-            'ZenPacks.zenoss.RabbitMQ.RabbitMQVHost.RabbitMQVHostAPI',
+            'ZenPacks.zenoss.RabbitMQ.RabbitMQVHostAPI.RabbitMQVHostAPI',
             'rabbitmq_apinode',
             ),),
         )

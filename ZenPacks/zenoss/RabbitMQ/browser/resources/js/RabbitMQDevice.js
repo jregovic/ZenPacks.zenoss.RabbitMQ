@@ -566,7 +566,7 @@ ZC.RabbitMQExchangeAPIPanel = Ext.extend(ZC.RabbitMQComponentGridPanel, {
     constructor: function(config) {
         config = Ext.applyIf(config||{}, {
             autoExpandColumn: 'name',
-            componentType: 'RabbitMQExchange'API,
+            componentType: 'RabbitMQExchangeAPI',
             fields: [
                 {name: 'uid'},
                 {name: 'name'},
@@ -834,5 +834,5 @@ Zenoss.nav.appendTo('Component', [{
         ZC.RabbitMQQueueAPIPanel.superclass.setContext.apply(this, [uid]);
     }
 }]);
-*/
+
 })();

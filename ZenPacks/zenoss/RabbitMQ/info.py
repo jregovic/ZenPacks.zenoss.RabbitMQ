@@ -52,21 +52,21 @@ class RabbitMQNodeAPIInfo(ComponentInfo):
 
     @property
     def vhostCount(self):
-        return self._object.rabbitmq_vhosts.countObjects()
+        return self._object.rabbitmq_apvhosts.countObjects()
 
     @property
     def exchangeCount(self):
         count = 0
-        for vhost in self._object.rabbitmq_vhosts():
-            count += vhost.rabbitmq_exchanges.countObjects()
+        for vhost in self._object.rabbitmq_apivhosts():
+            count += vhost.rabbitmq_apiexchanges.countObjects()
 
         return count
 
     @property
     def queueCount(self):
         count = 0
-        for vhost in self._object.rabbitmq_vhosts():
-            count += vhost.rabbitmq_queues.countObjects()
+        for vhost in self._object.rabbitmq_apivhosts():
+            count += vhost.rabbitmq_apiqueues.countObjects()
 
         return count
 
@@ -92,15 +92,15 @@ class RabbitMQVHostAPIInfo(ComponentInfo):
     @property
     @info
     def rabbitmq_node(self):
-        return self._object.rabbitmq_node()
+        return self._object.rabbitmq_apinode()
 
     @property
     def exchangeCount(self):
-        return self._object.rabbitmq_exchanges.countObjects()
+        return self._object.rabbitmq_apiexchanges.countObjects()
 
     @property
     def queueCount(self):
-        return self._object.rabbitmq_queues.countObjects()
+        return self._object.rabbitmq_apiqueues.countObjects()
 
 
 class RabbitMQExchangeInfo(ComponentInfo):
@@ -132,12 +132,12 @@ class RabbitMQExchangeAPIInfo(ComponentInfo):
     @property
     @info
     def rabbitmq_node(self):
-        return self._object.rabbitmq_vhost().rabbitmq_node()
+        return self._object.rabbitmq_apivhost().rabbitmq_apinode()
 
     @property
     @info
     def rabbitmq_vhost(self):
-        return self._object.rabbitmq_vhost()
+        return self._object.rabbitmq_apivhost()
 
 
 class RabbitMQQueueInfo(ComponentInfo):
@@ -191,12 +191,12 @@ class RabbitMQQueueAPIInfo(ComponentInfo):
     @property
     @info
     def rabbitmq_node(self):
-        return self._object.rabbitmq_vhost().rabbitmq_node()
+        return self._object.rabbitmq_apivhost().rabbitmq_apinode()
 
     @property
     @info
     def rabbitmq_vhost(self):
-        return self._object.rabbitmq_vhost()
+        return self._object.rabbitmq_apivhost()
     @property
     def status(self):
 	if self.state != 'running' and self.api:

@@ -785,7 +785,7 @@ Zenoss.nav.appendTo('Component', [{
 }]);
 
 Zenoss.nav.appendTo('Component', [{
-    id: 'component_rabbitmq_vhosts',
+    id: 'component_rabbitmq_apivhosts',
     text: _t('Related VHosts'),
     xtype: 'RabbitMQVHostAPIPanel',
     subComponentGridPanel: true,

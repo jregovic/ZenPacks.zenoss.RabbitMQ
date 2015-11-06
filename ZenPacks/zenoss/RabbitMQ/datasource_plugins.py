@@ -121,7 +121,7 @@ class RabbitMQDS(PythonDataSourcePlugin):
 	else:
 		auth = "Basic " +b64encode(device.zRabbitMQAdminUser+":"+device.zRabbitMQAdminPassword)
 	defList=[]
-        for point in ('nodes','vhosts','queues','exchanges','channels','connections'):
+        for point in ('overview','nodes','vhosts','queues','exchanges','channels','connections'):
                 if not auth:
                         # We apparently don't need authentication for this
                         d1 = getPage(self.page)
@@ -149,6 +149,7 @@ class RabbitMQDS(PythonDataSourcePlugin):
 			self.error=True
 			return None
     def onSuccess(self, results, config):
+	#import pdb;pdb.set_trace()
         maps = []
 
         node_title = None
@@ -169,6 +170,10 @@ class RabbitMQDS(PythonDataSourcePlugin):
 		if node['running']:
 			node_title = node['name']
 			node_id = prepId(node_title)
+			nodes.append(ObjectMap(data={
+				'id': node_id,
+				'title': node_title,
+			}))
 
             		LOG.info('Found node %s on %s', node_title, device.device)
 			channels={}
@@ -178,21 +183,23 @@ class RabbitMQDS(PythonDataSourcePlugin):
 			if self.data.has_key('connections'):
 				nodeData.update(self.getConnectionData(node['name'],self.data['connections']))
 			if len(nodeData) > 0:	
-				values[node_title] = {}
+				values[node_id] = {}
 				for value in nodeData:
 					dpName=config.datasources[0].datasource+'_'+value
-					values[node_title][dpName] = (nodeData[value],collectionTime)
+					values[node_id][dpName] = (nodeData[value],collectionTime)
         		# vhosts
 			#if LOG.getEffectiveLevel() >= 10:
 			#	import pdb;pdb.set_trace()
 			vhosts=self.getVHostRelMap(
             			device,'rabbitmq_apinodes/%s' % node_id,node_title,comps,values)
 			if vhosts:
-				nodes.append(ObjectMap(data={
-				'id': node_id,
-				'title': node_title,
-				}))
         			maps.extend(vhosts)
+	if self.data.has_key('overview'):
+		values[None] = {}
+		if self.data['overview'].has_key('queue_totals'):
+			for key in ('messages','messages_ready','messages_unacknowledged'):
+				if self.data['overview']['queue_totals'].has_key(key):
+					values[None][config.datasources[0].datasource+'_'+key] = (self.data['overview']['queue_totals'][key],collectionTime)	
 	if len(maps) > 0:
 		maps.append(RelationshipMap(
             			relname='rabbitmq_apinodes',

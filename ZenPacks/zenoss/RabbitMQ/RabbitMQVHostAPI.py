@@ -30,7 +30,7 @@ class RabbitMQVHostAPI(RabbitMQComponent):
             'rabbitmq_apivhost',
             ),),
         ('rabbitmq_apiqueues',ToManyCont(ToOne,
-            'ZenPacks.zenoss.RabbitMQ.RabbitMQAPIQueueAPI.RabbitMQQueueAPI',
+            'ZenPacks.zenoss.RabbitMQ.RabbitMQQueueAPI.RabbitMQQueueAPI',
             'rabbitmq_apivhost',
 	    ),),
         )
